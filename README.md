@@ -64,6 +64,22 @@ topologySpreadConstraints:
 #    whenUnsatisfiable: DoNotSchedule
 ```
 
+## Test with Java client
+
+```bash
+cc java-kubernetes-client
+mvn clean install exec:java
+kubectl get deployment my-app-java -o yaml
+## --> sample output
+# topologySpreadConstraints:
+# - labelSelector:
+#       matchLabels:
+#          app: my-app-java
+#    maxSkew: 1
+#    topologyKey: topology.kubernetes.io/zone
+#    whenUnsatisfiable: DoNotSchedule
+```
+
 ## Test a deployment without PTS
 
 ```bash
