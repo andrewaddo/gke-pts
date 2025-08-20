@@ -2,45 +2,20 @@
 
 ## Summary
 
-1. Why Kyverno?
+### Why Kyverno?
 
-Kyverno helps define topologySpreadConstraints at the cluster level by acting as
-  a dynamic admission controller that can automatically modify resources as they
-  are created. Instead of manually adding the constraints to every Deployment or
-  StatefulSet, you can create a single Kyverno ClusterPolicy. This policy
-  intercepts workloads at creation time and uses a mutate rule to automatically
-  inject the desired topologySpreadConstraints block into any pod spec that is
-  missing one. This ensures that all applications, by default, adhere to your
-  cluster's high-availability spreading rules (like distributing pods across zones
-  or nodes) without any effort from individual developers, leading to consistent
-  and enforceable best practices across the entire cluster.
+Kyverno helps define topologySpreadConstraints at the cluster level by acting as a dynamic admission controller that can automatically modify resources as they are created. Instead of manually adding the constraints to every Deployment or StatefulSet, you can create a single Kyverno ClusterPolicy. This policy intercepts workloads at creation time and uses a mutate rule to automatically inject the desired topologySpreadConstraints block into any pod spec that is missing one. This ensures that all applications, by default, adhere to your cluster's high-availability spreading rules (like distributing pods across zones  or nodes) without any effort from individual developers, leading to consistent and enforceable best practices across the entire cluster.
 
-1. Why not Gatekeeper?
+### Why not Gatekeeper?
 
 Gatekeeper's primary purpose is Validation, not Mutation.
+1. Immutable by Design: The core function of open-source OPA Gatekeeper is to act as a validating webhook. It inspects resources against policies written in Rego and returns a simple "allowed" or "denied" answer. It is intentionally designed not to change the content of the resources it inspects.
+2. Enforce vs. Modify: Gatekeeper's goal is to enforce that resources are compliant before they are created. It puts the responsibility on the user or CI/CD pipeline to create a compliant resource. If you submitted a Deployment without topologySpreadConstraints, a Gatekeeper policy would reject the request with an error, forcing you to go back and add the required field to your YAML. It will not add it for you.
+3. Separation of Concerns: This approach maintains a clear separation of concerns. The user defines the exact resource they want, and the policy engine acts as a simple guardrail to ensure it meets the rules. It avoids the complexity of the cluster silently modifying resources on the fly.
 
-   1. Immutable by Design: The core function of open-source OPA Gatekeeper is to act
-      as a validating webhook. It inspects resources against policies written in Rego
-      and returns a simple "allowed" or "denied" answer. It is intentionally designed
-      not to change the content of the resources it inspects.
+## Why not KubeSchedulerConfiguration?
 
-   2. Enforce vs. Modify: Gatekeeper's goal is to enforce that resources are compliant
-      before they are created. It puts the responsibility on the user or CI/CD pipeline
-       to create a compliant resource. If you submitted a Deployment without
-      topologySpreadConstraints, a Gatekeeper policy would reject the request with an
-      error, forcing you to go back and add the required field to your YAML. It will
-      not add it for you.
-
-   3. Separation of Concerns: This approach maintains a clear separation of concerns.
-      The user defines the exact resource they want, and the policy engine acts as a
-      simple guardrail to ensure it meets the rules. It avoids the complexity of the
-      cluster silently modifying resources on the fly.
-
-1. Why not KubeSchedulerConfiguration?
-
-The short answer is: `KubeSchedulerConfiguration` doesn't work with GKE because 
-  GKE manages the Kubernetes control plane for you, and does not expose the 
-  scheduler's underlying configuration files.
+The short answer is: `KubeSchedulerConfiguration` doesn't work with GKE because  GKE manages the Kubernetes control plane for you, and does not expose thescheduler's underlying configuration files.
 
 ## Set up
 
