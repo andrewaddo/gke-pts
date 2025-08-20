@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-with-pts
+  labels:
+    app: my-app-with-pts
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: my-app-with-pts
+  template:
+    metadata:
+      labels:
+        app: my-app-with-pts
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: "topology.kubernetes.io/zone"
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: my-app-with-pts
+      containers:
+        - name: my-app-with-pts
+          image: nginx:latest
+          ports:
+            - containerPort: 80

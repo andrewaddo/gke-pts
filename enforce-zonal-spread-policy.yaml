@@ -1,0 +1,35 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-zonal-topology-spread
+  annotations:
+    policies.kyverno.io/title: Add Zonal Topology Spread
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      This policy automatically adds Pod Topology Spread constraints to Deployments
+      and StatefulSets to ensure pods are spread across availability zones.
+      It helps ensure high availability by default. The rule only applies
+      if no topologySpreadConstraints are already defined.
+spec:
+  rules:
+  - name: add-zonal-spread-for-deployments
+    match:
+      any:
+      - resources:
+          kinds:
+          - Deployment
+          - StatefulSet
+    mutate:
+      patchStrategicMerge:
+        spec:
+          template:
+            spec:
+              # This anchor adds the block only if it's not already present.
+              +(topologySpreadConstraints):
+              - maxSkew: 1
+                topologyKey: "topology.kubernetes.io/zone"
+                whenUnsatisfiable: ScheduleAnyway
+                labelSelector:
+                  matchLabels: "{{request.object.spec.template.metadata.labels}}"

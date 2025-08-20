@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-without-pts
+  labels:
+    app: my-app-without-pts
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: my-app-without-pts
+  template:
+    metadata:
+      labels:
+        app: my-app-without-pts
+    spec:
+      containers:
+        - name: my-app-without-pts
+          image: nginx:latest
+          ports:
+            - containerPort: 80

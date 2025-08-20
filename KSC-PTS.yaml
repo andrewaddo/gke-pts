@@ -1,0 +1,57 @@
+apiVersion: kubescheduler.config.k8s.io/v1
+kind: KubeSchedulerConfiguration
+profiles:
+- schedulerName: default-scheduler
+  pluginConfig:
+  - name: PodTopologySpread
+    args:
+      defaultConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/node
+        whenUnsatisfiable: DoNotSchedule
+      defaultingType: List
+
+# Doesn't seem to be supported by GKE
+  # The short answer is: `KubeSchedulerConfiguration` doesn't work with GKE because 
+  # GKE manages the Kubernetes control plane for you, and does not expose the 
+  # scheduler's underlying configuration files.
+
+# This YAML file is a KubeSchedulerConfiguration.It modifies the behavior of the
+#   Kubernetes scheduler (kube-scheduler).
+
+#   Here's a breakdown of what this specific configuration does:
+
+#    * `apiVersion: kubescheduler.config.k8s.io/v1` and `kind: 
+#      KubeSchedulerConfiguration`: This identifies the file as a configuration for the
+#      Kubernetes scheduler.
+
+#    * `profiles: - schedulerName: default-scheduler`: It targets the
+#      default-scheduler, which is the standard scheduler used in most Kubernetes
+#      clusters.
+
+#    * `pluginConfig: - name: PodTopologySpread`: It specifically configures the
+#      PodTopologySpread plugin, which is responsible for implementing the pod topology
+#      spread constraints.
+
+#    * `args: ...`: This section provides the arguments for the PodTopologySpread
+#      plugin.
+
+#    * `defaultConstraints: ...`: This is the most important part. It sets default
+#      spreading constraints for all pods in the cluster that do not define their own
+#      topologySpreadConstraints.
+
+#    * `maxSkew: 1`: It sets a default skew of 1.
+#    * `topologyKey: topology.kubernetes.io/node`: It sets the default topology domain
+#      to be availability nodes.
+#    * `whenUnsatisfiable: DoNotSchedule`: This is a key difference from the
+#      deployment you created earlier. If a pod cannot be placed without violating the
+#      skew, the scheduler will not schedule it (DoNotSchedule).
+
+#   In Summary:
+
+#   This configuration file makes even spreading of pods across availability zones a 
+#   default behavior for the entire cluster. Any pod that is created without its own
+#   specific topologySpreadConstraints will automatically inherit these rules from
+#   the scheduler. This is a powerful way to enforce a high-availability posture at
+#   the cluster level without needing to configure every single workload
+#   individually.
