@@ -67,7 +67,7 @@ topologySpreadConstraints:
 ## Test with Java client
 
 ```bash
-cc java-kubernetes-client
+cd java-kubernetes-client
 mvn clean install exec:java
 kubectl get deployment my-app-java -o yaml
 ## --> sample output
